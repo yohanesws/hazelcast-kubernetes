@@ -63,6 +63,17 @@ public class DnsEndpointResolverTest {
 
     @Test
     public void testValidServiceDns() throws Exception {
+        DnsEndpointResolver endpointResolver = PowerMockito.spy(new DnsEndpointResolver(LOGGER, "hazelcast.com", SERVICE_DNS_TIMEOUT,null));
+        PowerMockito.when(endpointResolver, MemberMatcher.method(DnsEndpointResolver.class, "buildLookup", null)).withNoArguments().thenReturn(lookup);
+        when(lookup.getResult()).thenReturn(Lookup.SUCCESSFUL);
+        when(lookup.run()).thenReturn(getRecords());
+        List<DiscoveryNode> nodes = endpointResolver.resolve();
+        assertEquals(1, nodes.size());
+        assertEquals("127.0.0.1", nodes.get(0).getPrivateAddress().getHost());
+    }
+
+    @Test
+    public void testValidOtherServiceDns() throws Exception {
         DnsEndpointResolver endpointResolver = PowerMockito.spy(new DnsEndpointResolver(LOGGER, "hazelcast.com", SERVICE_DNS_TIMEOUT,"1.2.3.4:5701"));
         PowerMockito.when(endpointResolver, MemberMatcher.method(DnsEndpointResolver.class, "buildLookup", null)).withNoArguments().thenReturn(lookup);
         when(lookup.getResult()).thenReturn(Lookup.SUCCESSFUL);
