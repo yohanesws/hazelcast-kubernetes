@@ -56,20 +56,21 @@ public class DnsEndpointResolverTest {
 
     @Test
     public void testInvalidServiceDns() {
-        DnsEndpointResolver endpointResolver = new DnsEndpointResolver(LOGGER, "http://test", SERVICE_DNS_TIMEOUT);
+        DnsEndpointResolver endpointResolver = new DnsEndpointResolver(LOGGER, "http://test", SERVICE_DNS_TIMEOUT,null);
         List<DiscoveryNode> nodes = endpointResolver.resolve();
         assertTrue(nodes.isEmpty());
     }
 
     @Test
     public void testValidServiceDns() throws Exception {
-        DnsEndpointResolver endpointResolver = PowerMockito.spy(new DnsEndpointResolver(LOGGER, "hazelcast.com", SERVICE_DNS_TIMEOUT));
+        DnsEndpointResolver endpointResolver = PowerMockito.spy(new DnsEndpointResolver(LOGGER, "hazelcast.com", SERVICE_DNS_TIMEOUT,"1.2.3.4:5701"));
         PowerMockito.when(endpointResolver, MemberMatcher.method(DnsEndpointResolver.class, "buildLookup", null)).withNoArguments().thenReturn(lookup);
         when(lookup.getResult()).thenReturn(Lookup.SUCCESSFUL);
         when(lookup.run()).thenReturn(getRecords());
         List<DiscoveryNode> nodes = endpointResolver.resolve();
-        assertEquals(1, nodes.size());
-        assertEquals("127.0.0.1", nodes.get(0).getPrivateAddress().getHost());
+        assertEquals(2, nodes.size());
+        assertEquals("127.0.0.1", nodes.get(1).getPrivateAddress().getHost());
+        assertEquals("1.2.3.4", nodes.get(0).getPrivateAddress().getHost());
     }
 
     private Record[] getRecords() {

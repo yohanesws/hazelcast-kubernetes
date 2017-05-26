@@ -97,6 +97,13 @@ public final class KubernetesProperties {
      */
     public static final PropertyDefinition KUBERNETES_API_TOKEN = property("api-token", STRING);
 
+    /**
+     * <p>Configuration key: <tt>other-member</tt></p>
+     * Defines an oauth token for the kubernetes client to access the kubernetes REST API. Defaults to reading the
+     * token from the auto-injected file at: <tt>/var/run/secrets/kubernetes.io/serviceaccount/token</tt>
+     */
+    public static final PropertyDefinition OTHER_MEMBER = property("other-member", STRING);
+
     // Prevent instantiation
     private KubernetesProperties() {
     }

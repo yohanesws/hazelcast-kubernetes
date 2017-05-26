@@ -41,12 +41,15 @@ final class DnsEndpointResolver
 
     private final String serviceDns;
     private final int serviceDnsTimeout;
+    private final String otherMember;
 
-    DnsEndpointResolver(ILogger logger, String serviceDns, int serviceDnsTimeout) {
+    DnsEndpointResolver(ILogger logger, String serviceDns, int serviceDnsTimeout, String otherMember) {
         super(logger);
         this.serviceDns = serviceDns;
         this.serviceDnsTimeout = serviceDnsTimeout;
+        this.otherMember = otherMember;
     }
+
 
     List<DiscoveryNode> resolve() {
         try {
@@ -85,6 +88,24 @@ final class DnsEndpointResolver
                     }
                 }
             }
+
+            if (otherMember != null) {
+            String[] members = otherMember.split(",");
+              for (String member : members) {
+                  String[] nodes = member.split(":");
+                  if (nodes.length > 1) {
+                    InetAddress nodeIp = InetAddress.getByName(nodes[0]);
+                    int nodePort = getHazelcastPort(Integer.parseInt(nodes[1]));
+                    Address extraAddress = new Address(nodeIp, nodePort);
+
+                    if (addresses.add(extraAddress) && logger.isFinestEnabled()) {
+                        logger.finest("Found node service with address: " + extraAddress);
+                    }
+                  }
+              }
+            }
+
+
 
             if (addresses.size() == 0) {
                 logger.warning("Could not find any service for serviceDns '" + serviceDns + "'");

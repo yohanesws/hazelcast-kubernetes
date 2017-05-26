@@ -37,6 +37,7 @@ import static com.hazelcast.kubernetes.KubernetesProperties.SERVICE_DNS_TIMEOUT;
 import static com.hazelcast.kubernetes.KubernetesProperties.SERVICE_LABEL_NAME;
 import static com.hazelcast.kubernetes.KubernetesProperties.SERVICE_LABEL_VALUE;
 import static com.hazelcast.kubernetes.KubernetesProperties.SERVICE_NAME;
+import static com.hazelcast.kubernetes.KubernetesProperties.OTHER_MEMBER;
 
 final class HazelcastKubernetesDiscoveryStrategy
         extends AbstractDiscoveryStrategy {
@@ -59,6 +60,7 @@ final class HazelcastKubernetesDiscoveryStrategy
         String apiToken = getOrDefault(properties, KUBERNETES_SYSTEM_PREFIX, KUBERNETES_API_TOKEN, null);
         String namespace = getOrDefault(properties, KUBERNETES_SYSTEM_PREFIX, NAMESPACE, getNamespaceOrDefault());
         String kubernetesMaster = getOrDefault(properties, KUBERNETES_SYSTEM_PREFIX, KUBERNETES_MASTER_URL, DEFAULT_MASTER_URL);
+        String otherMember = getOrDefault(properties, KUBERNETES_SYSTEM_PREFIX, OTHER_MEMBER, null);
 
         logger.info("Kubernetes Discovery properties: { "
                 + "service-dns: " + serviceDns + ", "
@@ -70,7 +72,7 @@ final class HazelcastKubernetesDiscoveryStrategy
 
         EndpointResolver endpointResolver;
         if (serviceDns != null) {
-            endpointResolver = new DnsEndpointResolver(logger, serviceDns, serviceDnsTimeout);
+            endpointResolver = new DnsEndpointResolver(logger, serviceDns, serviceDnsTimeout, otherMember);
         } else {
             endpointResolver = new ServiceEndpointResolver(logger, serviceName, serviceLabel, serviceLabelValue, namespace,
                     kubernetesMaster, apiToken);
